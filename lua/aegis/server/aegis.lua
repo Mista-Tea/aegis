@@ -401,6 +401,7 @@ hook.Add( "PlayerSpawnedVehicle", "Aegis", function( ply, ent )        aegis.Set
 hook.Add( "CanTool", "iam.aegis.cantool", function( ply, tr, tool )
 	local ent   = tr.Entity
 	if ( !IsValid( ent ) and !ent:IsWorld() ) then return false end
+	if ( !IsValid( ply ) ) then return false end
 	
 	local class = ent:GetClass()
 	
@@ -417,6 +418,7 @@ end )
 --]]--
 hook.Add( "PhysgunPickup", "Aegis", function( ply, ent )
 	if ( ent:IsWorld() ) then return true end
+	if ( !IsValid( ply ) ) then return false end
 	
 	local override = hook.Run( "AegisPhysgunPickup", ply, ent ) 
 	if ( override ~= nil ) then return override end
@@ -429,6 +431,7 @@ end )
 --]]--
 hook.Add( "GravGunPickupAllowed", "Aegis", function( ply, ent )
 	if ( ent:IsWorld() ) then return true end
+	if ( !IsValid( ply ) ) then return false end
 	
 	local override = hook.Run( "AegisGravGunPickupAllowed", ply, ent ) 
 	if ( override ~= nil ) then return override end
@@ -441,6 +444,7 @@ end )
 --]]--
 hook.Add( "GravGunPunt", "Aegis", function( ply, ent )
 	if ( ent:IsWorld() ) then return true end
+	if ( !IsValid( ply ) ) then return false end
 	
 	local override = hook.Run( "AegisGravGunPunt", ply, ent ) 
 	if ( override ~= nil ) then return override end
@@ -453,6 +457,7 @@ end )
 --]]--
 hook.Add( "PlayerUse", "Aegis", function( ply, ent )
 	if ( ent:IsWorld() ) then return true end
+	if ( !IsValid( ply ) ) then return false end
 	
 	local override = hook.Run( "AegisPlayerUse", ply, ent ) 
 	if ( override ~= nil ) then return override end
@@ -487,6 +492,8 @@ end )
 -- 	Hook :: CanProperty( player, string, entity )
 --]]--
 hook.Add( "CanProperty", "Aegis", function( ply, property, ent )
+	if ( !IsValid( ply ) ) then return false end
+
 	local override = hook.Run( "AegisCanProperty", ply, property, ent ) 
 	if ( override ~= nil ) then return override end
 
@@ -497,6 +504,8 @@ end )
 -- 	Hook :: CanEditVariable( entity, player, string, *, table )
 --]]--
 hook.Add( "CanEditVariable", "Aegis", function( ent, ply, key, val, editor )
+	if ( !IsValid( ply ) ) then return false end
+	
 	local override = hook.Run( "AegisCanEditVariable", ent, ply, key, val, editor ) 
 	if ( override ~= nil ) then return override end
 
