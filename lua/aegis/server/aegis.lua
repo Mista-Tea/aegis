@@ -484,7 +484,7 @@ end )
 
 --[[--------------------------------------------------------------------------
 -- 	Hook :: OnPhysgunReload( weapon, player )
---]]
+--]]--
 hook.Add( "OnPhysgunReload", "Aegis", function( wep, ply )
 	local ent = ply:GetEyeTrace().Entity
 	if ( !IsValid( ent ) ) then return false end
