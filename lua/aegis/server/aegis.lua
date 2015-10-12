@@ -37,10 +37,10 @@ AEGIS_GLOBAL_USE       = 256
 AEGIS_GLOBAL_DAMAGE    = 512
 
 AEGIS_ALL_WHITELIST = bit.bor( AEGIS_WHITELIST, AEGIS_GLOBAL_WHITELIST )
-AEGIS_ALL_TOOL      = bit.bor( AEGIS_TOOL, AEGIS_GLOBAL_TOOL, AEGIS_ALL_WHITELIST )
-AEGIS_ALL_PHYSGUN   = bit.bor( AEGIS_PHYSGUN, AEGIS_GLOBAL_PHYSGUN, AEGIS_ALL_WHITELIST )
-AEGIS_ALL_USE       = bit.bor( AEGIS_USE, AEGIS_GLOBAL_USE, AEGIS_ALL_WHITELIST )
-AEGIS_ALL_DAMAGE    = bit.bor( AEGIS_DAMAGE, AEGIS_GLOBAL_DAMAGE, AEGIS_ALL_WHITELIST )
+AEGIS_ALL_TOOL      = bit.bor( AEGIS_TOOL,      AEGIS_GLOBAL_TOOL,    AEGIS_ALL_WHITELIST )
+AEGIS_ALL_PHYSGUN   = bit.bor( AEGIS_PHYSGUN,   AEGIS_GLOBAL_PHYSGUN, AEGIS_ALL_WHITELIST )
+AEGIS_ALL_USE       = bit.bor( AEGIS_USE,       AEGIS_GLOBAL_USE,     AEGIS_ALL_WHITELIST )
+AEGIS_ALL_DAMAGE    = bit.bor( AEGIS_DAMAGE,    AEGIS_GLOBAL_DAMAGE,  AEGIS_ALL_WHITELIST )
 
 aegis.local_to_global = {
 	[AEGIS_WHITELIST] = AEGIS_GLOBAL_WHITELIST,
@@ -229,9 +229,6 @@ function aegis.RemoveAccess( owner, accessor, access )
 	hook.Run( "AegisAccessRemoved", ent, accessor, access )
 	return true
 end
-
-
-
 --[[--------------------------------------------------------------------------
 --
 -- 	aegis.HasAccess()
@@ -244,7 +241,7 @@ function aegis.HasAccess( thisEnt, otherEnt, ... )
 	local ownerUID    = aegis.GetUID( thisEnt )
 	local accessorUID = aegis.GetUID( otherEnt )
 	
-	-- if both entities has the same owner, return true
+	-- if both entities have the same owner, return true
 	if ( ownerUID == accessorUID ) then return true end
 	
 	local override = hook.Run( "AegisHasAccess", ownerUID, accessorUID, {...} )
@@ -487,7 +484,7 @@ end )
 
 --[[--------------------------------------------------------------------------
 -- 	Hook :: OnPhysgunReload( weapon, player )
---]]--
+--]]
 hook.Add( "OnPhysgunReload", "Aegis", function( wep, ply )
 	local ent = ply:GetEyeTrace().Entity
 	if ( !IsValid( ent ) ) then return false end
