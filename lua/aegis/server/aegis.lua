@@ -438,23 +438,19 @@ end )
 --[[--------------------------------------------------------------------------
 -- 	Hook :: EntityTakeDamage( entity, table )
 --]]--
-hook.Add( "EntityTakeDamage", "Aegis", function( ent, dmg )	
-	local override = hook.Run( "AegisEntityTakeDamage", ent, dmg ) 
-	if ( override ~= nil ) then 
-		dmg:SetDamage( override )
-		return
-	end
+hook.Add( "EntityTakeDamage", "Aegis", function( ent, dmg )
+	if ( ent:IsWorld() ) then return end
+	local override = hook.Run( "AegisEntityTakeDamage", ent, dmg )
+	if ( override ~= nil ) then dmg:SetDamage( override ) return true end
 	
 	local att = dmg:GetAttacker()
 	local inf = dmg:GetInflictor()
-	
-	if ( att:IsWorld() or inf:IsWorld() ) then dmg:SetDamage( 0 ) return end
-	
-	local attUID = aegis.GetUID( att ) or aegis.GetUID( inf ) -- get either the inflicter ownerUID or default to the attacker ownerUID
 
-	if ( not aegis.HasAccess( ent, attUID, AEGIS_ALL_DAMAGE ) ) then
-		--if ( !ent:GetAegisOwnerID() ) then return end
+	if ( att:IsWorld() and inf:IsWorld() ) then
+		if ( ent:IsPlayer() ) then dmg:SetDamage( 0 ) return true end
+	elseif ( not aegis.HasAccess( ent, aegis.GetUID( inf, aegis.GetUID( att ) ), AEGIS_ALL_DAMAGE ) ) then
 		dmg:SetDamage( 0 )
+		return true
 	end
 end )
 
