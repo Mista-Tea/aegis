@@ -316,16 +316,16 @@ end
 -- 	aegis.GetUID()
 --
 --]]--
-function aegis.GetUID( var )
+function aegis.GetUID( var, default )
 	if ( IsEntity( var ) ) then
 		if ( var:IsPlayer() and var:IsValid() ) then
 			return aegis.UIDMethod( var )
 		else
-			return aegis.GetOwnerUID( var )
+			return aegis.GetOwnerUID( var, default )
 		end
 	end
 	
-	return var
+	if ( default ~= nil ) then return default else return var end
 end
 
 --[[--------------------------------------------------------------------------
