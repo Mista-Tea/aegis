@@ -259,34 +259,7 @@ function aegis.HasAccess( thisEnt, otherEnt, ... )
 	-- return true if the player has the corresponding permission
 	return bit.band( perms, mask ) > 0
 end
---[[--------------------------------------------------------------------------
---
--- 	aegis.HasAccesses()
---
---]]--
-function aegis.HasAccesses( thisEnt, otherEnt, accesses )
-	-- if both entities are the same, return true
-	if ( thisEnt == otherEnt ) then return true end
-	
-	local ownerUID    = aegis.GetUID( thisEnt )
-	local accessorUID = aegis.GetUID( otherEnt )
 
-	-- if both entities has the same owner, return true
-	if ( ownerUID == accessorUID ) then return true end
-	
-	local override = hook.Run( "AegisHasAccesses", ownerUID, accessorUID, accesses )
-	if ( override ~= nil ) then return override end
-	
-	-- retrieve the owner's permission granted to the accessor
-	local perms  = aegis.GetPermission( ownerUID, accessorUID )
-	local gperms = aegis.GetPermission( "GLOBAL", accessorUID )
-	
-	-- create a bitmask of accesses the player needs to be granted permission
-	local mask = bit.bor( unpack( accesses ) )
-	
-	-- return true if the player has any of the accesses from the mask
-	return bit.band( perms, gperms, mask ) > 0
-end
 
 
 --[[--------------------------------------------------------------------------
