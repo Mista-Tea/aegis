@@ -441,16 +441,16 @@ end )
 hook.Add( "EntityTakeDamage", "Aegis", function( ent, dmg )
 	if ( ent:IsWorld() ) then return end
 	local override = hook.Run( "AegisEntityTakeDamage", ent, dmg )
-	if ( override ~= nil ) then dmg:SetDamage( override ) return true end
+	if ( override ~= nil ) then dmg:SetDamage( override ) return false end
 	
 	local att = dmg:GetAttacker()
 	local inf = dmg:GetInflictor()
 
 	if ( att:IsWorld() and inf:IsWorld() ) then
-		if ( ent:IsPlayer() ) then dmg:SetDamage( 0 ) return true end
+		if ( ent:IsPlayer() ) then dmg:SetDamage( 0 ) return false end
 	elseif ( not aegis.HasAccess( ent, aegis.GetUID( inf, aegis.GetUID( att ) ), AEGIS_ALL_DAMAGE ) ) then
 		dmg:SetDamage( 0 )
-		return true
+		return false
 	end
 end )
 
