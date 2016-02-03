@@ -448,7 +448,7 @@ hook.Add( "EntityTakeDamage", "Aegis", function( ent, dmg )
 
 	if ( att:IsWorld() and inf:IsWorld() ) then
 		if ( ent:IsPlayer() ) then dmg:SetDamage( 0 ) return false end
-	elseif ( not aegis.HasAccess( ent, aegis.GetUID( inf, aegis.GetUID( att ) ), AEGIS_ALL_DAMAGE ) ) then
+	elseif ( not aegis.HasAccess( ent, aegis.GetUID( att, aegis.GetUID( inf ) ), AEGIS_ALL_DAMAGE ) ) then
 		dmg:SetDamage( 0 )
 		return false
 	end
