@@ -65,7 +65,6 @@ end
 --
 --]]--
 function ENTITY:CPPISetOwner( ply )
-	print("ENTITY:CPPISetOwner()", self, ply )
 	aegis.SetOwner( self, ply )
 	return true
 end
@@ -76,7 +75,6 @@ end
 --
 --]]--
 function ENTITY:CPPISetOwnerUID( uid )
-	print("ENTITY:CPPISetOwnerUID()", self, uid )
 	aegis.SetOwnerUID( self, uid )
 	return true
 end
