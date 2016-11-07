@@ -79,6 +79,22 @@ function ENTITY:CPPISetOwnerUID( uid )
 	return true
 end
 
+--[[--------------------------------------------------------------------------
+--
+-- 	ENTITY:CPPIGetFriends()
+--
+--]]--
+function ENTITY:CPPIGetFriends()
+	local tbl = {}
+	for _, ply in ipairs( player.GetAll() ) do
+		if ( ply == self ) then continue end
+		if ( self:CPPICanTool( ply ) ) then
+			tbl[#tbl+1] = ply
+		end
+	end
+	
+	return tbl
+end
 
 --[[--------------------------------------------------------------------------
 -- Entity Permission Functions
