@@ -21,52 +21,20 @@ aegis = aegis or {}
 
 aegis.permission = aegis.permission or {}
 aegis.player     = aegis.player     or {}
+aegis.cvar       = aegis.cvar       or {}
 
 local ENTITY = FindMetaTable( "Entity" )
 
-AEGIS_WHITELIST = 1
-AEGIS_PHYSGUN   = 2
-AEGIS_TOOL      = 4
-AEGIS_USE       = 8
-AEGIS_DAMAGE    = 16
+aegis.cvar.Persist = CreateConVar( "aegis_persist", "1", {FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE}, "Keeps a player's permissions even after they disconnect" )
 
-AEGIS_GLOBAL_WHITELIST = 32
-AEGIS_GLOBAL_PHYSGUN   = 64
-AEGIS_GLOBAL_TOOL      = 128
-AEGIS_GLOBAL_USE       = 256
-AEGIS_GLOBAL_DAMAGE    = 512
+--[[--------------------------------------------------------------------------
+-- Localized Functions & Variables
+--------------------------------------------------------------------------]]--
 
-AEGIS_ALL_WHITELIST = bit.bor( AEGIS_WHITELIST, AEGIS_GLOBAL_WHITELIST )
-AEGIS_ALL_TOOL      = bit.bor( AEGIS_TOOL,      AEGIS_GLOBAL_TOOL,    AEGIS_ALL_WHITELIST )
-AEGIS_ALL_PHYSGUN   = bit.bor( AEGIS_PHYSGUN,   AEGIS_GLOBAL_PHYSGUN, AEGIS_ALL_WHITELIST )
-AEGIS_ALL_USE       = bit.bor( AEGIS_USE,       AEGIS_GLOBAL_USE,     AEGIS_ALL_WHITELIST )
-AEGIS_ALL_DAMAGE    = bit.bor( AEGIS_DAMAGE,    AEGIS_GLOBAL_DAMAGE,  AEGIS_ALL_WHITELIST )
-
-aegis.local_to_global = {
-	[AEGIS_WHITELIST] = AEGIS_GLOBAL_WHITELIST,
-	[AEGIS_PHYSGUN]   = AEGIS_GLOBAL_PHYSGUN,
-	[AEGIS_TOOL]      = AEGIS_GLOBAL_TOOL,
-	[AEGIS_USE]       = AEGIS_GLOBAL_USE,
-	[AEGIS_DAMAGE]    = AEGIS_GLOBAL_DAMAGE,
-}
-
-aegis.string_to_local = {
-	whitelist = AEGIS_WHITELIST,
-	physgun   = AEGIS_PHYSGUN,
-	tool      = AEGIS_TOOL,
-	use       = AEGIS_USE,
-	damage    = AEGIS_DAMAGE,
-}
-
-aegis.string_to_global = {
-	whitelist = AEGIS_GLOBAL_WHITELIST,
-	physgun   = AEGIS_GLOBAL_PHYSGUN,
-	tool      = AEGIS_GLOBAL_TOOL,
-	use       = AEGIS_GLOBAL_USE,
-	damage    = AEGIS_GLOBAL_DAMAGE,
-}
-
-aegis.Persist = CreateConVar( "aegis_persist", "1", FCVAR_SERVER_CAN_EXECUTE, "Keeps a player's permissions even after they disconnect" )
+local bit = bit
+local hook = hook
+local unpack = unpack
+local IsEntity = IsEntity
 
 --[[--------------------------------------------------------------------------
 -- Namespace Functions
@@ -82,7 +50,7 @@ function aegis.GetPlayer( uid )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.Create( player )
+-- 	aegis.Create( entity )
 --
 --]]--
 function aegis.Create( ent )
@@ -93,7 +61,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.SetAegis( player )
+-- 	aegis.SetAegis( *, * )
 --
 --]]--
 function ENTITY:SetAegis( key, value )
@@ -103,12 +71,12 @@ function ENTITY:SetAegis( key, value )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetAegis( player )
+-- 	aegis.GetAegis( *, * )
 --
 --]]--
 function ENTITY:GetAegis( key, default )
 	if ( not self[ "aegis" ] ) then aegis.Create( self ) end
-	
+	-- this may error if this entity is NULL
 	return self[ "aegis" ][ key ] or default
 end
 
@@ -116,7 +84,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.SetOwnerUID( player )
+-- 	aegis.SetOwnerUID( entity, * )
 --
 --]]--
 function aegis.SetOwnerUID( ent, uid )
@@ -125,7 +93,7 @@ function aegis.SetOwnerUID( ent, uid )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetOwnerUID( player )
+-- 	aegis.GetOwnerUID( entity, * )
 --
 --]]--
 function aegis.GetOwnerUID( ent, default )
@@ -133,7 +101,7 @@ function aegis.GetOwnerUID( ent, default )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.SetOwner( player )
+-- 	aegis.SetOwner( entity, player )
 --	
 --	Convenience function for automatically assigning an owner to the 
 --	given enttiy.
@@ -147,7 +115,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.SetupPlayer()
+-- 	aegis.SetupPlayer( player )
 --
 --]]--
 function aegis.SetupPlayer( ply )
@@ -177,7 +145,7 @@ function aegis.ClearPlayer( ply )
 	aegis.player[ uid ] = nil
 	
 	-- if aegis is set to not persist permissions, clear out the player's data from the table
-	if ( not aegis.Persist:GetBool() ) then
+	if ( not aegis.cvar.Persist:GetBool() ) then
 		aegis.permission[ uid ] = nil
 	end
 end
@@ -187,7 +155,7 @@ hook.Add( "PlayerDisconnected", "AegisRemovePlayer", aegis.ClearPlayer )
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.AddAccess()
+-- 	aegis.AddAccess( player, player, entity )
 --
 --]]--
 function aegis.AddAccess( owner, accessor, access )
@@ -209,7 +177,7 @@ function aegis.AddAccess( owner, accessor, access )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.RemoveAccess()
+-- 	aegis.RemoveAccess( player, player, string )
 --
 --]]--
 function aegis.RemoveAccess( owner, accessor, access )
@@ -226,12 +194,12 @@ function aegis.RemoveAccess( owner, accessor, access )
 	-- remove the access from the owner's permissions granted to the accessor
 	aegis.SetPermission( ownerUID, accessorUID, bit.band( perms, bit.bnot( access ) ) )
 	
-	hook.Run( "AegisAccessRemoved", ent, accessor, access )
+	hook.Run( "AegisAccessRemoved", owner, accessor, access )
 	return true
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.HasAccess()
+-- 	aegis.HasAccess( entity, entity, varags )
 --
 --]]--
 function aegis.HasAccess( thisEnt, otherEnt, ... )
@@ -261,7 +229,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetGlobalAccess()
+-- 	aegis.GetGlobalAccess( string )
 --
 --]]--
 function aegis.GetGlobalAccess( access )
@@ -269,7 +237,7 @@ function aegis.GetGlobalAccess( access )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetPermissions()
+-- 	aegis.GetPermissions( * )
 --
 --]]--
 function aegis.GetPermissions( uid )
@@ -277,7 +245,7 @@ function aegis.GetPermissions( uid )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetPermission()
+-- 	aegis.GetPermission( *, * )
 --
 --]]--
 function aegis.GetPermission( ownerUID, accessorUID )
@@ -285,7 +253,7 @@ function aegis.GetPermission( ownerUID, accessorUID )
 end
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.SetPermission()
+-- 	aegis.SetPermission( *, *, number )
 --
 --]]--
 function aegis.SetPermission( ownerUID, accessorUID, num )
@@ -295,25 +263,25 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetLocalByString()
+-- 	aegis.GetLocalByString( string )
 --
 --]]--
 function aegis.GetLocalByString( str )
-	return aegis.string_to_local[ str:lower() ]
+	return aegis.lookup_local[ str:lower() ]
 end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetGlobalByString()
+-- 	aegis.GetGlobalByString( string )
 --
 --]]--
 function aegis.GetGlobalByString( str )
-	return aegis.string_to_global[ str:lower() ]
+	return aegis.lookup_global[ str:lower() ]
 end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.GetUID()
+-- 	aegis.GetUID( *, * )
 --
 --]]--
 function aegis.GetUID( var, default )
@@ -330,7 +298,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.UIDBySteamID()
+-- 	aegis.UIDBySteamID( player )
 --
 --]]--
 function aegis.UIDBySteamID( ply )
@@ -339,7 +307,7 @@ end
 
 --[[--------------------------------------------------------------------------
 --
--- 	aegis.UIDBySteamID64()
+-- 	aegis.UIDBySteamID64( player )
 --
 --]]--
 function aegis.UIDBySteamID64( ply )
@@ -347,150 +315,3 @@ function aegis.UIDBySteamID64( ply )
 end
 
 aegis.UIDMethod = aegis.UIDBySteamID
-
---[[--------------------------------------------------------------------------
--- ENTITY SPAWNING HOOKS
---------------------------------------------------------------------------]]--
-
-hook.Add( "PlayerSpawnedEffect",  "Aegis", function( ply, model, ent ) aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedProp",    "Aegis", function( ply, model, ent ) aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedRagdoll", "Aegis", function( ply, model, ent ) aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedNPC",     "Aegis", function( ply, ent )        aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedSENT",    "Aegis", function( ply, ent )        aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedSWEP",    "Aegis", function( ply, ent )        aegis.SetOwner( ent, ply ) end )
-hook.Add( "PlayerSpawnedVehicle", "Aegis", function( ply, ent )        aegis.SetOwner( ent, ply ) end )
-
-
---[[--------------------------------------------------------------------------
--- ENTITY PROTECTION HOOKS
---------------------------------------------------------------------------]]--
-
---[[--------------------------------------------------------------------------
--- 	Hook :: CanTool( player, table, string )
---]]--
-hook.Add( "CanTool", "iam.aegis.cantool", function( ply, tr, tool )
-	local ent   = tr.Entity
-	if ( !IsValid( ent ) and !ent:IsWorld() ) then return false end
-	if ( !IsValid( ply ) ) then return false end
-	
-	local class = ent:GetClass()
-	
-	local override = hook.Run( "AegisCanTool", ply, tr, tool )
-	if ( override ~= nil ) then return override end
-	
-	if ( ent:IsWorld() ) then return true end
-	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_TOOL )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: PhysgunPickup( player, entity )
---]]--
-hook.Add( "PhysgunPickup", "Aegis", function( ply, ent )
-	if ( ent:IsWorld() ) then return true end
-	if ( !IsValid( ply ) ) then return false end
-	
-	local override = hook.Run( "AegisPhysgunPickup", ply, ent ) 
-	if ( override ~= nil ) then return override end
-	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: GravGunPickupAllowed( player, entity )
---]]--
-hook.Add( "GravGunPickupAllowed", "Aegis", function( ply, ent )
-	if ( ent:IsWorld() ) then return true end
-	if ( !IsValid( ply ) ) then return false end
-	
-	local override = hook.Run( "AegisGravGunPickupAllowed", ply, ent ) 
-	if ( override ~= nil ) then return override end
-	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: GravGunPunt( player, entity )
---]]--
-hook.Add( "GravGunPunt", "Aegis", function( ply, ent )
-	if ( ent:IsWorld() ) then return true end
-	if ( !IsValid( ply ) ) then return false end
-	
-	local override = hook.Run( "AegisGravGunPunt", ply, ent ) 
-	if ( override ~= nil ) then return override end
-	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: PlayerUse( player, entity )
---]]--
-hook.Add( "PlayerUse", "Aegis", function( ply, ent )
-	if ( ent:IsWorld() ) then return true end
-	if ( !IsValid( ply ) ) then return false end
-	
-	local override = hook.Run( "AegisPlayerUse", ply, ent ) 
-	if ( override ~= nil ) then return override end
-	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_USE )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: EntityTakeDamage( entity, table )
---]]--
-hook.Add( "EntityTakeDamage", "Aegis", function( ent, dmg )
-	if ( ent:IsWorld() ) then return end
-	local override = hook.Run( "AegisEntityTakeDamage", ent, dmg )
-	if ( override ~= nil ) then dmg:SetDamage( override ) return false end
-	
-	local att = dmg:GetAttacker()
-	local inf = dmg:GetInflictor()
-
-	if ( att:IsWorld() and inf:IsWorld() ) then
-		if ( ent:IsPlayer() ) then dmg:SetDamage( 0 ) return false end
-	elseif ( not aegis.HasAccess( ent, aegis.GetUID( att, aegis.GetUID( inf ) ), AEGIS_ALL_DAMAGE ) ) then
-		dmg:SetDamage( 0 )
-		return false
-	end
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: CanProperty( player, string, entity )
---]]--
-hook.Add( "CanProperty", "Aegis", function( ply, property, ent )
-	if ( !IsValid( ply ) ) then return false end
-
-	local override = hook.Run( "AegisCanProperty", ply, property, ent ) 
-	if ( override ~= nil ) then return override end
-
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_TOOL )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: CanEditVariable( entity, player, string, *, table )
---]]--
-hook.Add( "CanEditVariable", "Aegis", function( ent, ply, key, val, editor )
-	if ( !IsValid( ply ) ) then return false end
-	
-	local override = hook.Run( "AegisCanEditVariable", ent, ply, key, val, editor ) 
-	if ( override ~= nil ) then return override end
-
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_TOOL )
-end )
-
---[[--------------------------------------------------------------------------
--- 	Hook :: OnPhysgunReload( weapon, player )
---]]--
-hook.Add( "OnPhysgunReload", "Aegis", function( wep, ply )
-	local ent = ply:GetEyeTrace().Entity
-	if ( !IsValid( ent ) ) then return false end
-	
-	local override = hook.Run( "AegisOnPhysgunReload", wep, ply ) 
-	if ( override ~= nil ) then return override end
-	
-	if ( not aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN ) ) then 
-		return false
-	end
-	
-	-- to allow the player, don't return anything!
-end )
