@@ -20,6 +20,7 @@
 CPPI = CPPI or {}
 
 local ENTITY = FindMetaTable( "Entity" )
+local PLAYER = FindMetaTable( "Player" )
 
 --[[--------------------------------------------------------------------------
 -- Namespace Functions
@@ -84,7 +85,7 @@ end
 -- 	ENTITY:CPPIGetFriends()
 --
 --]]--
-function ENTITY:CPPIGetFriends()
+function PLAYER:CPPIGetFriends()
 	local tbl = {}
 	for _, ply in ipairs( player.GetAll() ) do
 		if ( ply == self ) then continue end
