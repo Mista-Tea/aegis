@@ -90,7 +90,7 @@ hook.Add( "GravGunPickupAllowed", "Aegis", function( ply, ent )
 	local override = hook.Run( "AegisGravGunPickupAllowed", ply, ent ) 
 	if ( override ~= nil ) then return override end
 	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN )
+	return aegis.HasAccess( ent, ply, AEGIS_ALL_GRAVGUN )
 end )
 
 --[[--------------------------------------------------------------------------
@@ -105,7 +105,7 @@ hook.Add( "GravGunPunt", "Aegis", function( ply, ent )
 	local override = hook.Run( "AegisGravGunPunt", ply, ent ) 
 	if ( override ~= nil ) then return override end
 	
-	return aegis.HasAccess( ent, ply, AEGIS_ALL_PHYSGUN )
+	return aegis.HasAccess( ent, ply, AEGIS_ALL_GRAVGUN )
 end )
 
 --[[--------------------------------------------------------------------------

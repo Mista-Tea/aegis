@@ -110,8 +110,14 @@ function aegis.SetOwner( ent, ply )
 	aegis.SetOwnerUID( ent, aegis.GetUID( ply ) )
 	hook.Run( "AegisOwnerSet", ent, ply )
 end
-
-
+--[[--------------------------------------------------------------------------
+--
+-- 	aegis.GetOwner( entity )
+--
+--]]--
+function aegis.GetOwner( ent )
+    return aegis.player[ aegis.GetOwnerUID( ent ) ]
+end
 
 --[[--------------------------------------------------------------------------
 --
@@ -130,7 +136,9 @@ function aegis.SetupPlayer( ply )
 	aegis.SetOwner( ply, ply )
 	
 	-- setup the player's permissions table
-	aegis.permission[ uid ] = aegis.permission[ uid ] or { GLOBAL = 0 }
+	aegis.permission[ uid ] = aegis.permission[ uid ] or {
+		[aegis.GLOBAL_ID] = aegis.NO_PERMISSION
+	}
 end
 hook.Add( "PlayerInitialSpawn", "AegisSetupPlayer", aegis.SetupPlayer )
 --[[--------------------------------------------------------------------------
@@ -222,7 +230,7 @@ function aegis.HasAccess( thisEnt, otherEnt, ... )
 	-- create a bitmask of accesses the player needs to be granted permission
 	local mask = bit.bor( unpack( {...} ) )
 	-- return true if the player has the corresponding permission
-	return bit.band( perms, mask ) > 0
+	return bit.band( perms, mask ) > aegis.NO_PERMISSION
 end
 
 
@@ -249,7 +257,7 @@ end
 --
 --]]--
 function aegis.GetPermission( ownerUID, accessorUID )
-	return aegis.permission[ ownerUID ] and aegis.permission[ ownerUID ][ accessorUID ] or 0
+	return aegis.permission[ ownerUID ] and aegis.permission[ ownerUID ][ accessorUID ] or aegis.NO_PERMISSION
 end
 --[[--------------------------------------------------------------------------
 --
@@ -257,7 +265,7 @@ end
 --
 --]]--
 function aegis.SetPermission( ownerUID, accessorUID, num )
-	aegis.permission[ ownerUID ][ accessorUID ] = aegis.permission[ ownerUID ][ accessorUID ] or 0
+	aegis.permission[ ownerUID ][ accessorUID ] = aegis.permission[ ownerUID ][ accessorUID ] or aegis.NO_PERMISSION
 	aegis.permission[ ownerUID ][ accessorUID ] = num
 end
 
@@ -277,6 +285,14 @@ end
 --]]--
 function aegis.GetGlobalByString( str )
 	return aegis.lookup_global[ str:lower() ]
+end
+--[[--------------------------------------------------------------------------
+--
+-- 	aegis.GetAccessNameByEnum( number )
+--
+--]]--
+function aegis.GetAccessNameByEnum( enum )
+	return aegis.lookup_local[ enum ] or aegis.lookup_global[ enum ]
 end
 
 --[[--------------------------------------------------------------------------

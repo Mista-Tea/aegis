@@ -20,13 +20,6 @@
 aegis = aegis or {}
 
 --[[--------------------------------------------------------------------------
--- Localized Functions & Variables
---------------------------------------------------------------------------]]--
-
-local util = util
-local hook = hook
-
---[[--------------------------------------------------------------------------
 -- Namespace Functions
 --------------------------------------------------------------------------]]--
 
@@ -38,13 +31,18 @@ local hook = hook
 function aegis.Initialize()
 
 	if ( SERVER ) then
-		
-		utils.AddFiles( "aegis/server", "include" )
-		utils.AddFiles( "aegis/shared", "shared" )
-		
-	elseif ( CLIENT ) then
-		
-		utils.AddFiles( "aegis/shared", "include" )	
-	end
+		include("aegis/server/aegis.lua")
+        include("aegis/shared/enum.lua")
+		include("aegis/server/cppi.lua")
+		include("aegis/server/hook.lua")
+		AddCSLuaFile("aegis/shared/enum.lua")
+	else
+        include("aegis/shared/enum.lua")
+    end
+	
+	
+	
+	hook.Run("Aegis.SetupPermissions")
+	
 end
-hook.Add( "Initialize", "Aegis", aegis.Initialize )
+hook.Add( "Initialize", "aegis.Initialize", aegis.Initialize )

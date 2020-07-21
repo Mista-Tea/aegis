@@ -124,11 +124,11 @@ function ENTITY:CPPICanPhysgun( ply ) return aegis.HasAccess( self, ply, AEGIS_A
 --[[--------------------------------------------------------------------------
 -- 	ENTITY:CPPICanPickup( entity )
 --]]--
-function ENTITY:CPPICanPickup( ply ) return aegis.HasAccess( self, ply, AEGIS_ALL_PHYSGUN ) end
+function ENTITY:CPPICanPickup( ply ) return aegis.HasAccess( self, ply, AEGIS_ALL_GRAVGUN ) end
 --[[--------------------------------------------------------------------------
 -- 	ENTITY:CPPICanPunt( entity )
 --]]--
-function ENTITY:CPPICanPunt( ply ) return aegis.HasAccess( self, ply, AEGIS_ALL_PHYSGUN ) end
+function ENTITY:CPPICanPunt( ply ) return aegis.HasAccess( self, ply, AEGIS_ALL_GRAVGUN ) end
 --[[--------------------------------------------------------------------------
 -- 	ENTITY:CPPICanUse( entity )
 --]]--
