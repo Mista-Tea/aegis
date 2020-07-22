@@ -66,13 +66,13 @@ local function addAccess( tbl, id, name, description, priority )
 	return enum
 end
 
-function aegis.CreateAccess( id, name, description, priority )
+function aegis.CreateAccess( id, name, description, priority, WHITELIST )
 	local localEnum  = addAccess( aegis.LOCAL_ID,   id, name, "Allows this player " .. description, priority )
 	local globalEnum = addAccess( aegis.GLOBAL_ID, id, name, "Allows everyone "    .. description, priority )
 	
 	aegis.local_to_global[localEnum] = globalEnum
 	
-	return localEnum, globalEnum, bit.bor( localEnum, globalEnum )
+	return localEnum, globalEnum, bit.bor( localEnum, globalEnum, WHITELIST or 0 )
 end
 
 function aegis.ClearAccesses()
@@ -89,8 +89,8 @@ end
 aegis.ClearAccesses()
 
 AEGIS_LOCAL_WHITELIST, AEGIS_GLOBAL_WHITELIST, AEGIS_ALL_WHITELIST = aegis.CreateAccess( 'whitelist', 'Whitelist', 'full permission' )
-AEGIS_LOCAL_PHYSGUN,   AEGIS_GLOBAL_PHYSGUN,   AEGIS_ALL_PHYSGUN   = aegis.CreateAccess( 'physgun',   'Physgun',   'to pick up your stuff with the physgun' )
-AEGIS_LOCAL_GRAVGUN,   AEGIS_GLOBAL_GRAVGUN,   AEGIS_ALL_GRAVGUN   = aegis.CreateAccess( 'gravgun',   'Grav Gun',  'to pick up your stuff with the gravity cannon' )
-AEGIS_LOCAL_TOOL,      AEGIS_GLOBAL_TOOL,      AEGIS_ALL_TOOL      = aegis.CreateAccess( 'tool',      'Tool',      'to use tools on your stuff' )
-AEGIS_LOCAL_USE,       AEGIS_GLOBAL_USE,       AEGIS_ALL_USE       = aegis.CreateAccess( 'use',       'Use (E)',   'to sit in seats or press your buttons' )
-AEGIS_LOCAL_DAMAGE,    AEGIS_GLOBAL_DAMAGE,    AEGIS_ALL_DAMAGE    = aegis.CreateAccess( 'damage',    'Damage',    'to damage you and your stuff (but NOT with ACF)' )
+AEGIS_LOCAL_PHYSGUN,   AEGIS_GLOBAL_PHYSGUN,   AEGIS_ALL_PHYSGUN   = aegis.CreateAccess( 'physgun',   'Physgun',   'to pick up your stuff with the physgun', nil, AEGIS_ALL_WHITELIST )
+AEGIS_LOCAL_GRAVGUN,   AEGIS_GLOBAL_GRAVGUN,   AEGIS_ALL_GRAVGUN   = aegis.CreateAccess( 'gravgun',   'Grav Gun',  'to pick up your stuff with the gravity cannon', nil, AEGIS_ALL_WHITELIST )
+AEGIS_LOCAL_TOOL,      AEGIS_GLOBAL_TOOL,      AEGIS_ALL_TOOL      = aegis.CreateAccess( 'tool',      'Tool',      'to use tools on your stuff', nil, AEGIS_ALL_WHITELIST )
+AEGIS_LOCAL_USE,       AEGIS_GLOBAL_USE,       AEGIS_ALL_USE       = aegis.CreateAccess( 'use',       'Use (E)',   'to sit in seats or press your buttons', nil, AEGIS_ALL_WHITELIST )
+AEGIS_LOCAL_DAMAGE,    AEGIS_GLOBAL_DAMAGE,    AEGIS_ALL_DAMAGE    = aegis.CreateAccess( 'damage',    'Damage',    'to damage you and your stuff (but NOT with ACF)', nil, AEGIS_ALL_WHITELIST )
