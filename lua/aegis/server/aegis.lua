@@ -275,7 +275,7 @@ end
 --
 --]]--
 function aegis.GetLocalByString( str )
-	return aegis.lookup_local[ str:lower() ]
+	return aegis.lookup_local_by_name[ str:lower() ]
 end
 
 --[[--------------------------------------------------------------------------
@@ -284,7 +284,7 @@ end
 --
 --]]--
 function aegis.GetGlobalByString( str )
-	return aegis.lookup_global[ str:lower() ]
+	return aegis.lookup_global_by_name[ str:lower() ]
 end
 --[[--------------------------------------------------------------------------
 --
@@ -292,7 +292,7 @@ end
 --
 --]]--
 function aegis.GetAccessNameByEnum( enum )
-	return aegis.lookup_local[ enum ] or aegis.lookup_global[ enum ]
+	return aegis.lookup_local_by_enum[ enum ] or aegis.lookup_global_by_enum[ enum ]
 end
 
 --[[--------------------------------------------------------------------------

@@ -26,8 +26,12 @@ aegis = aegis or {}
 aegis.LOCAL_ID  = 'local'
 aegis.GLOBAL_ID = 'global'
 
-aegis.lookup_local    = aegis.lookup_local    or {}
-aegis.lookup_global   = aegis.lookup_global   or {}
+aegis.lookup_local_by_name  = aegis.lookup_local_by_name  or {}
+aegis.lookup_global_by_name = aegis.lookup_global_by_name or {}
+
+aegis.lookup_local_by_enum  = aegis.lookup_local_by_enum  or {}
+aegis.lookup_global_by_enum = aegis.lookup_global_by_enum or {}
+
 aegis.local_to_global = aegis.local_to_global or {}
 aegis.access_priority = aegis.access_priority or {
 	[aegis.LOCAL_ID]  = {},
@@ -50,7 +54,8 @@ end
 
 local function addAccess( tbl, id, name, description, priority )
 	local enum = aegis.GenerateEnum()
-	aegis['lookup_'..tbl][id] = enum
+	aegis['lookup_'..tbl..'_by_name'][id]   = enum
+    aegis['lookup_'..tbl..'_by_enum'][enum] = id
 	
 	local data = {
 		id   = id,
@@ -67,7 +72,7 @@ local function addAccess( tbl, id, name, description, priority )
 end
 
 function aegis.CreateAccess( id, name, description, priority, WHITELIST )
-	local localEnum  = addAccess( aegis.LOCAL_ID,   id, name, "Allows this player " .. description, priority )
+	local localEnum  = addAccess( aegis.LOCAL_ID,  id, name, "Allows this player " .. description, priority )
 	local globalEnum = addAccess( aegis.GLOBAL_ID, id, name, "Allows everyone "    .. description, priority )
 	
 	aegis.local_to_global[localEnum] = globalEnum
@@ -76,10 +81,15 @@ function aegis.CreateAccess( id, name, description, priority, WHITELIST )
 end
 
 function aegis.ClearAccesses()
-	aegis.next_enum_bit   = aegis.NO_PERMISSION
-	aegis.lookup_local    = {}
-	aegis.lookup_global   = {}
+	aegis.next_enum_bit = aegis.NO_PERMISSION
+    
+	aegis.lookup_local_by_name  = {}
+	aegis.lookup_global_by_name = {}
+    aegis.lookup_local_by_enum  = {}
+	aegis.lookup_global_by_enum = {}
+    
 	aegis.local_to_global = {}
+    
 	aegis.access_priority = {
 		[aegis.LOCAL_ID]  = {},
 		[aegis.GLOBAL_ID] = {},
