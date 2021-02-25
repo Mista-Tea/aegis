@@ -17,15 +17,15 @@
 -- Namespace Tables
 --------------------------------------------------------------------------]]--
 
+local ENTITY = FindMetaTable( "Entity" )
+
 aegis = aegis or {}
 
 aegis.permission = aegis.permission or {}
 aegis.player     = aegis.player     or {}
 aegis.cvar       = aegis.cvar       or {}
 
-local ENTITY = FindMetaTable( "Entity" )
-
-aegis.cvar.Persist = CreateConVar( "aegis_persist", "1", {FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE}, "Keeps a player's permissions even after they disconnect" )
+aegis.cvar.Persist = CreateConVar( "aegis_persist", "1", {FCVAR_ARCHIVE, FCVAR_SERVER_CAN_EXECUTE, FCVAR_REPLICATED}, "Keeps a player's permissions even after they disconnect" )
 
 --[[--------------------------------------------------------------------------
 -- Localized Functions & Variables
@@ -140,7 +140,9 @@ function aegis.SetupPlayer( ply )
 		[aegis.GLOBAL_ID] = aegis.NO_PERMISSION
 	}
 end
-hook.Add( "PlayerInitialSpawn", "AegisSetupPlayer", aegis.SetupPlayer )
+if SERVER then
+    hook.Add( "PlayerInitialSpawn", "AegisSetupPlayer", aegis.SetupPlayer )
+end
 --[[--------------------------------------------------------------------------
 --
 -- 	aegis.ClearPlayer( player )
@@ -157,7 +159,9 @@ function aegis.ClearPlayer( ply )
 		aegis.permission[ uid ] = nil
 	end
 end
-hook.Add( "PlayerDisconnected", "AegisRemovePlayer", aegis.ClearPlayer )
+if SERVER then
+    hook.Add( "PlayerDisconnected", "AegisRemovePlayer", aegis.ClearPlayer )
+end
 
 
 
@@ -225,7 +229,7 @@ function aegis.HasAccess( thisEnt, otherEnt, ... )
 	
 	-- retrieve the owner's permission granted to the accessor
 	local perms  = aegis.GetPermission( ownerUID, accessorUID )
-	perms = bit.bor( perms, aegis.GetPermission( ownerUID, "GLOBAL" ) )
+	perms = bit.bor( perms, aegis.GetPermission( ownerUID, aegis.GLOBAL_ID ) )
 	
 	-- create a bitmask of accesses the player needs to be granted permission
 	local mask = bit.bor( unpack( {...} ) )
@@ -318,7 +322,7 @@ end
 --
 --]]--
 function aegis.UIDBySteamID( ply )
-	return ply:SteamID()
+	return ply:IsBot() and "BOT" or ply:SteamID()
 end
 
 --[[--------------------------------------------------------------------------

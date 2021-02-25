@@ -31,16 +31,21 @@ aegis = aegis or {}
 function aegis.Initialize()
 
 	if ( SERVER ) then
-		include("aegis/server/aegis.lua")
-        include("aegis/shared/enum.lua")
-		include("aegis/server/cppi.lua")
-		include("aegis/server/hook.lua")
-		AddCSLuaFile("aegis/shared/enum.lua")
+		include("aegis/shared/sh_aegis.lua")
+        include("aegis/shared/sh_cppi.lua")
+        include("aegis/shared/sh_enum.lua")
+        
+		include("aegis/server/sv_hook.lua")
+        
+        -- Send shared files
+        AddCSLuaFile("aegis/shared/sh_aegis.lua")
+        AddCSLuaFile("aegis/shared/sh_cppi.lua")
+		AddCSLuaFile("aegis/shared/sh_enum.lua")
 	else
-        include("aegis/shared/enum.lua")
+        include("aegis/shared/sh_aegis.lua")
+        include("aegis/shared/sh_cppi.lua")
+        include("aegis/shared/sh_enum.lua")
     end
-	
-	
 	
 	hook.Run("Aegis.SetupPermissions")
 	

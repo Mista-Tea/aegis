@@ -38,6 +38,9 @@ aegis.access_priority = aegis.access_priority or {
 	[aegis.GLOBAL_ID] = {},
 }
 
+aegis.access_local  = aegis.access_local  or {}
+aegis.access_global = aegis.access_global or {}
+
 aegis.NO_PERMISSION = 0 -- default value indicating permission has not been given for an action
 
 --[[--------------------------------------------------------------------------
@@ -104,3 +107,6 @@ AEGIS_LOCAL_GRAVGUN,   AEGIS_GLOBAL_GRAVGUN,   AEGIS_ALL_GRAVGUN   = aegis.Creat
 AEGIS_LOCAL_TOOL,      AEGIS_GLOBAL_TOOL,      AEGIS_ALL_TOOL      = aegis.CreateAccess( 'tool',      'Tool',      'to use tools on your stuff', nil, AEGIS_ALL_WHITELIST )
 AEGIS_LOCAL_USE,       AEGIS_GLOBAL_USE,       AEGIS_ALL_USE       = aegis.CreateAccess( 'use',       'Use (E)',   'to sit in seats or press your buttons', nil, AEGIS_ALL_WHITELIST )
 AEGIS_LOCAL_DAMAGE,    AEGIS_GLOBAL_DAMAGE,    AEGIS_ALL_DAMAGE    = aegis.CreateAccess( 'damage',    'Damage',    'to damage you and your stuff (but NOT with ACF)', nil, AEGIS_ALL_WHITELIST )
+
+aegis.access_local  = aegis.access_priority[aegis.LOCAL_ID]
+aegis.access_global = aegis.access_priority[aegis.GLOBAL_ID]
