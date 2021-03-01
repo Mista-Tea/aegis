@@ -48,7 +48,7 @@ hook.Add( "PlayerSpawnedVehicle", "Aegis", function( ply, ent )        aegis.Set
 -- 	Hook :: CanTool( player, table, string )
 --
 --]]--
-hook.Add( "CanTool", "iam.aegis.cantool", function( ply, tr, tool )
+hook.Add( "CanTool", "Aegis", function( ply, tr, tool )
 	local ent   = tr.Entity
 	if ( not IsValid( ent ) and not ent:IsWorld() ) then return false end
 	if ( not IsValid( ply ) ) then return false end
